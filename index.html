@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doodle Dash 🧑‍🎨🎨</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Comic Sans MS;
+            background: #f0f4ff;
+            min-height: 100vh;
+            padding: 16px;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 22px;
+            margin-bottom: 12px;
+            color: #333;
+        }
+
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+            padding: 10px 12px;
+            background: #e8ecf8;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            border: 1px solid #d0d8f0;
+        }
+
+        .tool-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 8px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            background: #fff;
+            transition: transform 0.1s;
+        }
+
+        .tool-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .tool-btn.active {
+            border-color: #378ADD;
+        }
+
+        .color-dot {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: transform 0.1s;
+            flex-shrink: 0;
+        }
+
+        .color-dot:hover {
+            transform: scale(1.15);
+        }
+
+        .color-dot.active {
+            border-color: #333;
+            transform: scale(1.15);
+        }
+
+        #custom-color-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            cursor: pointer;
+            flex-shrink: 0;
+            position: relative;
+            overflow: hidden;
+            background: conic-gradient(red, yellow, lime, cyan, blue, magenta, red);
+            transition: transform 0.1s;
+        }
+
+        #custom-color-btn:hover {
+            transform: scale(1.15);
+        }
+
+        #custom-color-btn.active {
+            border-color: #333;
+            transform: scale(1.15);
+        }
+
+        #custom-color-btn input[type=color] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+            border: none;
+            padding: 0;
+        }
+
+        .size-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fff;
+        }
+
+        .size-btn.active {
+            border: 2px solid #378ADD;
+        }
+
+        .divider {
+            width: 1px;
+            height: 36px;
+            background: #ccc;
+            margin: 0 4px;
+            flex-shrink: 0;
+        }
+
+        .action-btn {
+            padding: 6px 14px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            background: #fff;
+            cursor: pointer;
+            font-size: 13px;
+            color: #333;
+        }
+
+        .action-btn:hover {
+            background: #e8ecf8;
+        }
+
+        canvas {
+            border-radius: 12px;
+            border: 1px solid #ccc;
+            display: block;
+            width: 100%;
+            touch-action: none;
+            background: #fff;
+        }
+
+        .stamp-bar {
+            display: none;
+            padding: 8px 12px;
+            background: #e8ecf8;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            border: 1px solid #d0d8f0;
+        }
+
+        .tab-row {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-bottom: 8px;
+        }
+
+        .tab-btn {
+            padding: 4px 10px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            background: #fff;
+            cursor: pointer;
+            font-size: 12px;
+            color: #555;
+            white-space: nowrap;
+        }
+
+        .tab-btn.active {
+            background: #378ADD;
+            color: #fff;
+            border-color: #378ADD;
+        }
+
+        .stamp-list {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+
+        .stamp-btn {
+            font-size: 24px;
+            background: none;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            padding: 2px 5px;
+            transition: transform 0.1s;
+        }
+
+        .stamp-btn:hover {
+            transform: scale(1.2);
+        }
+
+        .stamp-btn.active {
+            background: #dbeafe;
+            border-color: #378ADD;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🎨 Doodle Dash 🧑‍🎨🎨</h1>
+    <article style="text-align:center;font-size:14px;color:#555;margin-bottom:16px;">
+    Doodle Dash is the fast and fun drawing app made just for kids! Grab your virtual brush, pick any color from the
+    rainbow, and let your imagination run wild. Stamp stickers, splash colors, and create awesome masterpieces in seconds —
+    then save them to show off to family and friends. Whether you're doodling silly faces, wild animals, or your own magical
+    world, Doodle Dash makes every drawing an adventure!
+    </article>
+    <div class="toolbar">
+        <button class="tool-btn active" id="btn-pen" title="Pen" onclick="setTool('pen',this)">✏️</button>
+        <button class="tool-btn" id="btn-fill" title="Fill" onclick="setTool('fill',this)">🪣</button>
+        <button class="tool-btn" id="btn-eraser" title="Eraser" onclick="setTool('eraser',this)">🧹</button>
+        <button class="tool-btn" id="btn-stamp" title="Stamps" onclick="setTool('stamp',this)">⭐</button>
+        <div class="divider"></div>
+        <div id="color-palette" style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;"></div>
+        <div id="custom-color-btn" title="Pick any color">
+            <input type="color" id="color-picker" value="#ff0000">
+        </div>
+        <div class="divider"></div>
+        <button class="size-btn active" id="sz-sm" onclick="setSize(4,this)" title="Small">
+            <svg width="10" height="10">
+                <circle cx="5" cy="5" r="4" fill="#333" />
+            </svg>
+        </button>
+        <button class="size-btn" id="sz-md" onclick="setSize(10,this)" title="Medium">
+            <svg width="16" height="16">
+                <circle cx="8" cy="8" r="7" fill="#333" />
+            </svg>
+        </button>
+        <button class="size-btn" id="sz-lg" onclick="setSize(22,this)" title="Large">
+            <svg width="26" height="26">
+                <circle cx="13" cy="13" r="12" fill="#333" />
+            </svg>
+        </button>
+        <div class="divider"></div>
+        <button class="action-btn" onclick="clearCanvas()">🗑️ Clear</button>
+        <button class="action-btn" onclick="downloadDrawing()">💾 Save</button>
+    </div>
+
+    <div class="stamp-bar" id="stamp-bar">
+        <div class="tab-row" id="tab-row"></div>
+        <div class="stamp-list" id="stamp-list"></div>
+    </div>
+
+    <canvas id="drawCanvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('drawCanvas');
+        const ctx = canvas.getContext('2d');
+        const stampBar = document.getElementById('stamp-bar');
+        const colorPicker = document.getElementById('color-picker');
+        const customBtn = document.getElementById('custom-color-btn');
+
+        const presetColors = [
+            '#E24B4A', '#F09595', '#EF9F27', '#FAC775', '#639922', '#97C459',
+            '#185FA5', '#85B7EB', '#533AB7', '#C93B9E', '#111111', '#888780', '#FFFFFF'
+        ];
+
+        const stickerPacks = {
+            '🌟 Sparkle': ['⭐', '🌟', '💫', '✨', '🌈', '🎆', '🎇', '🌠', '💥', '🔮', '🪄', '🎀', '💝', '💖', '🌸'],
+            '🐾 Animals': ['🐱', '🐶', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯', '🦁', '🐸', '🐙', '🦋', '🐝', '🦄', '🐲', '🦖', '🐬', '🐧'],
+            '🍭 Food': ['🍕', '🍦', '🍩', '🍪', '🎂', '🍰', '🧁', '🍫', '🍬', '🍭', '🍓', '🍉', '🍋', '🍇', '🥝', '🌽', '🍔', '🌮', '🧇', '🍟'],
+            '🚀 Space': ['🚀', '🌙', '🪐', '⭐', '☄️', '🛸', '👽', '🌍', '🌞', '🌝', '🔭', '🛰️', '💫', '🌌', '🪨'],
+            '🎨 Fun': ['🎈', '🎉', '🎊', '🎮', '🎯', '🎲', '🎭', '🎪', '🏆', '🥇', '🎸', '🎹', '🎺', '🥁', '🪘'],
+            '🌿 Nature': ['🌺', '🌻', '🌹', '🌷', '🍀', '🌿', '🍁', '🍄', '🌊', '⛰️', '🌋', '🌴', '🌵', '🦋', '🐌', '🌙', '❄️', '⚡', '🌈', '🔥'],
+            '😀 Faces': ['😀', '😂', '🤩', '😍', '🥳', '😎', '🤔', '😜', '🥺', '😡', '🤯', '🥶', '🤠', '👻', '💀', '🤖', '👾', '🎃', '🧸', '🫶'],
+        };
+
+        let tool = 'pen', color = '#111111', brushSize = 4, drawing = false;
+        let selectedStamp = '⭐', activeTab = '🌟 Sparkle';
+
+        function initCanvas() {
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = Math.min(480, Math.max(300, window.innerHeight * 0.55));
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function setActiveColor(c) {
+            color = c;
+            document.querySelectorAll('.color-dot').forEach(x => x.classList.remove('active'));
+            customBtn.classList.remove('active');
+            if (tool === 'eraser') setTool('pen', document.getElementById('btn-pen'));
+        }
+
+        // Build preset color palette
+        const palette = document.getElementById('color-palette');
+        presetColors.forEach(c => {
+            const d = document.createElement('div');
+            d.className = 'color-dot' + (c === color ? ' active' : '');
+            d.style.background = c;
+            if (c === '#FFFFFF') d.style.border = '2px solid #ccc';
+            d.onclick = () => { setActiveColor(c); d.classList.add('active'); };
+            palette.appendChild(d);
+        });
+
+        // Custom color picker
+        colorPicker.addEventListener('input', e => {
+            const c = e.target.value;
+            color = c;
+            customBtn.style.background = c;
+            document.querySelectorAll('.color-dot').forEach(x => x.classList.remove('active'));
+            customBtn.classList.add('active');
+            if (tool === 'eraser') setTool('pen', document.getElementById('btn-pen'));
+        });
+        colorPicker.addEventListener('click', e => e.stopPropagation());
+
+        function renderTabs() {
+            const tabRow = document.getElementById('tab-row');
+            tabRow.innerHTML = '';
+            Object.keys(stickerPacks).forEach(name => {
+                const b = document.createElement('button');
+                b.className = 'tab-btn' + (name === activeTab ? ' active' : '');
+                b.textContent = name;
+                b.onclick = () => { activeTab = name; renderTabs(); renderStamps(); };
+                tabRow.appendChild(b);
+            });
+        }
+
+        function renderStamps() {
+            const list = document.getElementById('stamp-list');
+            list.innerHTML = '';
+            stickerPacks[activeTab].forEach(s => {
+                const b = document.createElement('button');
+                b.className = 'stamp-btn' + (s === selectedStamp ? ' active' : '');
+                b.textContent = s;
+                b.onclick = () => { selectedStamp = s; renderStamps(); };
+                list.appendChild(b);
+            });
+        }
+
+        function setTool(t, btn) {
+            tool = t;
+            document.querySelectorAll('.tool-btn').forEach(x => x.classList.remove('active'));
+            btn.classList.add('active');
+            canvas.style.cursor = t === 'stamp' ? 'cell' : t === 'fill' ? 'copy' : 'crosshair';
+            stampBar.style.display = t === 'stamp' ? 'block' : 'none';
+        }
+
+        function setSize(s, btn) {
+            brushSize = s;
+            document.querySelectorAll('.size-btn').forEach(x => x.classList.remove('active'));
+            btn.classList.add('active');
+        }
+
+        function getPos(e) {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            const src = e.touches ? e.touches[0] : e;
+            return [(src.clientX - rect.left) * scaleX, (src.clientY - rect.top) * scaleY];
+        }
+
+        function floodFill(startX, startY, fillColor) {
+            const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const d = imgData.data;
+            const w = canvas.width, h = canvas.height;
+            const idx = (x, y) => (y * w + x) * 4;
+            const si = idx(Math.round(startX), Math.round(startY));
+            const [r0, g0, b0, a0] = [d[si], d[si + 1], d[si + 2], d[si + 3]];
+            const fc = parseInt(fillColor.slice(1), 16);
+            const fr = (fc >> 16) & 255, fg = (fc >> 8) & 255, fb = fc & 255;
+            if (r0 === fr && g0 === fg && b0 === fb) return;
+            const match = i => d[i] === r0 && d[i + 1] === g0 && d[i + 2] === b0 && d[i + 3] === a0;
+            const stack = [[Math.round(startX), Math.round(startY)]];
+            const visited = new Uint8Array(w * h);
+            while (stack.length) {
+                const [x, y] = stack.pop();
+                if (x < 0 || x >= w || y < 0 || y >= h) continue;
+                const i = idx(x, y);
+                if (visited[y * w + x] || !match(i)) continue;
+                visited[y * w + x] = 1;
+                d[i] = fr; d[i + 1] = fg; d[i + 2] = fb; d[i + 3] = 255;
+                stack.push([x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1]);
+            }
+            ctx.putImageData(imgData, 0, 0);
+        }
+
+        function placeStamp(x, y) {
+            ctx.font = `${brushSize * 4 + 20}px serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(selectedStamp, x, y);
+        }
+
+        canvas.addEventListener('mousedown', e => {
+            const [x, y] = getPos(e);
+            if (tool === 'fill') { floodFill(x, y, color); return; }
+            if (tool === 'stamp') { placeStamp(x, y); return; }
+            drawing = true; ctx.beginPath(); ctx.moveTo(x, y);
+        });
+        canvas.addEventListener('mousemove', e => {
+            if (!drawing) return;
+            const [x, y] = getPos(e);
+            ctx.lineWidth = tool === 'eraser' ? brushSize * 3 : brushSize;
+            ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+            ctx.strokeStyle = tool === 'eraser' ? '#ffffff' : color;
+            ctx.lineTo(x, y); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(x, y);
+        });
+        canvas.addEventListener('mouseup', () => drawing = false);
+        canvas.addEventListener('mouseleave', () => drawing = false);
+
+        canvas.addEventListener('touchstart', e => {
+            e.preventDefault();
+            const [x, y] = getPos(e);
+            if (tool === 'stamp') { placeStamp(x, y); return; }
+            drawing = true; ctx.beginPath(); ctx.moveTo(x, y);
+        }, { passive: false });
+        canvas.addEventListener('touchmove', e => {
+            e.preventDefault();
+            if (!drawing) return;
+            const [x, y] = getPos(e);
+            ctx.lineWidth = tool === 'eraser' ? brushSize * 3 : brushSize;
+            ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+            ctx.strokeStyle = tool === 'eraser' ? '#ffffff' : color;
+            ctx.lineTo(x, y); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(x, y);
+        }, { passive: false });
+        canvas.addEventListener('touchend', () => drawing = false);
+
+        function clearCanvas() {
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function downloadDrawing() {
+            const link = document.createElement('a');
+            link.download = 'my-drawing.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+
+        initCanvas();
+        renderTabs();
+        renderStamps();
+    </script>
+</body>
+</html>
